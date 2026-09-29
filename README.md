@@ -98,7 +98,13 @@ a stricter classification here. The page states its own definition in the Lore p
 - The D→SSS letter ranks are this page's own invention, assigned by offense severity. New York
   grades felonies A-I through E.
 
-## Published artifact
+## Where it's hosted
 
-<https://claude.ai/artifact/64yxiz19VpZH6JtaEqzt2y> — private until shared from the page's
-Share menu.
+**Live site:** <https://charlesfainlehman.github.io/chibi_3300/>
+
+Served by GitHub Pages from `main` at the repository root, so a push to `main` redeploys it.
+The site is a snapshot of whatever `index.html` was committed — re-run `build/build.py` and
+push to refresh it against the current custody file.
+
+A snapshot also exists as a Claude artifact at
+<https://claude.ai/artifact/64yxiz19VpZH6JtaEqzt2y>, which does not track this repository.
