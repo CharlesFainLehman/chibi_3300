@@ -1,0 +1,643 @@
+<title>Only 3,300 Beds?!</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Libre+Franklin:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a one-screen control room. HUD on top, the pixel yard in the middle, release orders in four
+   escalating columns at the bottom. Nothing but the orders column ever scrolls. */
+:root{
+  --paper:#f1ece1; --card:#fbf9f4; --ink:#161d2e; --soft:#5d6478; --rule:#cbc2ae;
+  --sV:#b5342a; --sN:#2d5c9b; --sU:#6e6a5d;
+  --hard:#9d9379; --accent:#1b4c8a; --stamp:#af2318; --wash:#af23181c; --ok:#1c6b47; --amber:#8d5a06;
+  --fd:"Libre Franklin",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --fx:"Dela Gothic One","Libre Franklin",Impact,sans-serif;
+  --fm:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --forb:#6b3fa0;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f131c; --card:#191e2a; --ink:#e9e3d6; --soft:#9aa1b4; --rule:#2d3444; --hard:#4b5468;
+  --accent:#82aae4; --stamp:#ef7365; --wash:#ef736522; --ok:#57b88a; --amber:#d7a44b;
+  --sV:#d4503f; --sN:#4b82c9; --sU:#8a8578; --forb:#b492e4; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f131c; --card:#191e2a; --ink:#e9e3d6; --soft:#9aa1b4; --rule:#2d3444; --hard:#4b5468;
+  --accent:#82aae4; --stamp:#ef7365; --wash:#ef736522; --ok:#57b88a; --amber:#d7a44b;
+  --sV:#d4503f; --sN:#4b82c9; --sU:#8a8578; --forb:#b492e4; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{height:100%}
+body{height:100%;margin:0;overflow:hidden;background:var(--paper);color:var(--ink);
+  font-family:var(--fd);font-size:14px;-webkit-font-smoothing:antialiased}
+.fig{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.app{height:100%;max-width:1560px;margin:0 auto;padding:8px 14px 9px;
+  display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(150px,1fr) auto;gap:8px}
+.hud,.yard,.orders,.scroller,.cols,.scores,.ycap,.lgd{min-width:0}
+
+/* ---------- HUD ---------- */
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:7px 16px;
+  border-bottom:2px solid var(--ink);padding-bottom:7px}
+.brand{flex:1 1 250px}
+.gauge{flex:3 1 270px}
+.acts{flex:0 0 auto}
+.brand{min-width:0}
+.brand{position:relative;padding-right:6px;min-width:0}
+.brand h1{margin:0;font-family:var(--fx);font-size:clamp(16px,1.95vw,26px);font-weight:400;
+  letter-spacing:-.005em;line-height:1.04;transform:skewX(-5deg);transform-origin:left bottom;
+  text-shadow:2px 2px 0 var(--stamp)}
+.brand h1 em{font-style:normal;color:var(--stamp);text-shadow:2px 2px 0 var(--ink)}
+.brand p{margin:4px 0 0;font-size:10.5px;color:var(--soft);line-height:1.28;max-width:52ch}
+.brand p b{color:var(--ink);font-weight:600}
+.brand p .ep{font-family:var(--fd);font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  font-size:9.5px;color:var(--stamp)}
+.gauge{display:flex;align-items:center;gap:11px;min-width:0}
+.popn{font-size:clamp(25px,3.1vw,36px);font-weight:800;letter-spacing:-.035em;line-height:1;white-space:nowrap}
+.gbar{flex:1;min-width:90px}
+.track{position:relative;height:16px;border:1px solid var(--rule);border-radius:2px;overflow:hidden;
+  background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.fill{position:absolute;inset:0 auto 0 0;background:var(--accent);transition:width .35s cubic-bezier(.3,.7,.3,1)}
+.over{position:absolute;top:0;bottom:0;background:var(--stamp);transition:left .35s,width .35s;
+  background-image:repeating-linear-gradient(115deg,#fff4 0 3px,#0000 3px 7px)}
+.capmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);left:50%}
+.gsub{display:flex;justify-content:space-between;gap:6px;margin-top:3px;font-size:10px;color:var(--soft)}
+.gsub span{white-space:nowrap}
+.gsub b{color:var(--ink)}
+.badge{font-family:var(--fx);font-size:10px;letter-spacing:.01em;padding:5px 8px;
+  border:1.5px solid var(--stamp);color:var(--stamp);background:var(--wash);border-radius:2px;white-space:nowrap}
+.badge.good{border-color:var(--ok);color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent);animation:none}
+.badge{animation:thr 1.15s ease-in-out infinite}
+@keyframes thr{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@media (prefers-reduced-motion:reduce){.badge{animation:none}}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+button{font-family:var(--fx);font-size:10px;letter-spacing:.02em;text-transform:uppercase;
+  padding:7px 10px;border-radius:2px;cursor:pointer;border:1.5px solid var(--ink);background:var(--ink);
+  color:var(--paper);white-space:nowrap}
+button.ghost{background:none;color:var(--ink)}
+button:hover{opacity:.84}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.scores{flex:1 1 100%;display:flex;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  border-radius:2px;overflow:hidden}
+.sc{flex:1;min-width:0;background:var(--card);padding:3px 7px}
+.sc .v{display:block;font-size:17px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.sc .k{display:block;font-size:9.5px;line-height:1.2;color:var(--soft);margin-top:1px;
+  text-transform:uppercase;letter-spacing:.04em}
+.sc.hot .v{color:var(--stamp)}
+
+/* ---------- yard ---------- */
+.yard{position:relative;min-height:0;display:flex;flex-direction:column;gap:5px}
+.pen{position:relative;flex:1;min-height:0}
+#cv{display:block;width:100%;height:100%;border-radius:3px;cursor:default;touch-action:manipulation}
+.tip{position:absolute;z-index:5;pointer-events:none;max-width:260px;background:var(--card);
+  border:1.5px solid var(--hard);border-radius:3px;padding:6px 8px;box-shadow:0 8px 22px -12px #0007}
+.tip .ch{display:block;font-weight:600;font-size:12.5px;line-height:1.25}
+.tip .dt{display:block;font-family:var(--fm);font-size:10.5px;color:var(--soft);margin-top:3px;line-height:1.35}
+.tip .dt em{color:var(--stamp);font-style:normal}
+.ycap{display:flex;gap:4px 14px;align-items:baseline;font-size:10.5px;color:var(--soft);min-width:0}
+.ycap .lgd{display:flex;gap:11px;flex-wrap:wrap;white-space:nowrap}
+.ycap i{display:inline-block;width:8px;height:8px;border:1px solid var(--ink);margin-right:4px}
+.tick{flex:1;min-width:0;text-align:right;font-family:var(--fm);font-size:11px;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tick em{color:var(--stamp);font-style:normal}
+
+/* ---------- orders ---------- */
+.orders{min-height:0;display:flex;flex-direction:column;gap:5px}
+.scroller{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+.cols{columns:4;column-gap:13px}
+.col{break-inside:avoid;margin-bottom:8px}
+.ch1{display:flex;align-items:baseline;gap:7px;border-bottom:1.5px solid var(--ink);padding-bottom:2px;margin-bottom:3px}
+.ch1 h2{margin:0;font-family:var(--fx);font-size:11px;flex:1;min-width:0;text-transform:uppercase;
+  letter-spacing:.015em;line-height:1.2}
+.ch1 span{font-size:11px;font-weight:600;color:var(--soft);white-space:nowrap}
+.col.red .ch1{border-color:var(--stamp)}
+.col.red .ch1 h2,.col.red .ch1 span{color:var(--stamp)}
+.chip{display:flex;align-items:center;gap:6px;padding:1px 6px;border:1px solid var(--rule);border-radius:2px;
+  margin-bottom:2px;cursor:pointer;background:var(--card);min-width:0}
+.chip:hover{border-color:var(--hard)}
+.chip:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));
+  box-shadow:inset 3px 0 0 var(--accent)}
+.col.red .chip:has(input:checked){border-color:var(--stamp);background:var(--wash);box-shadow:inset 3px 0 0 var(--stamp)}
+.chip input{flex:none;width:14px;height:14px;margin:0;accent-color:var(--accent);cursor:pointer}
+.col.red .chip input{accent-color:var(--stamp)}
+.chip input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.rk{flex:none;width:28px;text-align:center;font-family:var(--fd);font-weight:800;font-size:9px;
+  line-height:14px;height:14px;border:1px solid currentColor;border-radius:2px;letter-spacing:.02em;
+  color:var(--soft)}
+.rB{color:var(--accent)} .rA{color:var(--amber)} .rS,.rSS{color:var(--stamp)}
+.rSSS{color:var(--card);background:var(--stamp);border-color:var(--stamp)}
+.rxx{color:var(--forb)}
+.chip .cn{flex:1;min-width:0;font-size:12px;line-height:1.22;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip .cv{flex:none;font-size:12px;font-weight:700;letter-spacing:-.01em}
+.chip .cm{flex:none;font-size:9.5px;color:var(--soft);min-width:30px;white-space:nowrap;text-align:right}
+.hint{border-top:1px solid var(--rule);padding-top:4px;font-size:11px;line-height:1.32;color:var(--soft);
+  height:36px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.hint b{color:var(--ink);font-weight:600}
+.hint .warn{color:var(--stamp);font-weight:600}
+
+/* ---------- method sheet ---------- */
+.sheet{position:fixed;inset:0;z-index:20;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px}
+.sheet[hidden],.tip[hidden]{display:none}
+.sheet .in{background:var(--card);border:2px solid var(--ink);border-radius:3px;max-width:720px;width:100%;
+  max-height:88%;overflow-y:auto;padding:20px 22px}
+.sheet h3{margin:0 0 4px;font-family:var(--fx);font-size:17px;font-weight:400;letter-spacing:.01em;
+  text-shadow:2px 2px 0 var(--stamp)}
+.sheet .real{font-family:var(--fd);font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--stamp);margin:0 0 12px}
+.sheet p{font-size:13.5px;line-height:1.5;margin:0 0 11px;color:var(--ink)}
+.sheet a{color:var(--accent)}
+.dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 14px;font-size:12.5px;line-height:1.45}
+.dl dt{font-weight:600}
+.dl dd{margin:0;color:var(--soft)}
+.sheet .x{margin-top:14px}
+
+@media (max-width:1100px){.acts{flex:1 1 100%;justify-content:flex-start}.hint{height:50px}}
+@media (max-width:1180px){.cols{columns:3}}
+@media (max-width:700px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100%;grid-template-rows:auto auto auto}
+  .pen{height:200px;flex:none}
+  .cols{columns:1}
+  .scroller{overflow:visible}
+  .hint{height:auto;min-height:50px;overflow:visible}
+  .tick{text-align:left;white-space:normal}
+  .ycap{flex-wrap:wrap}
+  .scores{flex-wrap:wrap}.sc{flex:1 1 30%}
+}
+@media (prefers-reduced-motion:reduce){.fill,.over{transition:none}}
+</style>
+
+<div class="app">
+  <header class="hud">
+    <div class="brand">
+      <h1>Only <em>3,300</em> Beds?!</h1>
+      <p>My jail plan holds just <b>3,300</b> &mdash; but Rikers closes <b>August 31, 2027</b> and the
+      population <b>WON'T STOP GROWING?!</b> <span class="ep">&#9670; S1&nbsp;E1</span></p>
+    </div>
+    <div class="gauge">
+      <div class="popn fig" id="popn">6,617</div>
+      <div class="gbar">
+        <div class="track"><div class="fill" id="fill"></div><div class="over" id="overf"></div><div class="capmark" id="capmark"></div></div>
+        <div class="gsub"><span>0</span><span><b>3,300 &mdash; SACRED LIMIT</b></span><span id="popMax">&mdash;</span></div>
+      </div>
+      <div class="badge" id="badge">Over by 3,317</div>
+    </div>
+    <div class="acts">
+      <button id="bNV">&#9672; Free the Nonviolent</button>
+      <button class="ghost" id="bReset">&#8634; Reset</button>
+      <button class="ghost" id="bMethod">&#10022; Lore</button>
+    </div>
+    <div class="scores" id="scores"></div>
+  </header>
+
+  <section class="yard">
+    <div class="pen"><canvas id="cv" role="img" aria-label="The jail yard. Each chibi figure is 50 people in custody; each floor mat is 50 of the 3,300 beds the new borough jails will have."></canvas><div class="tip" id="tip" hidden></div></div>
+    <div class="ycap">
+      <span class="lgd">
+        <span><i style="background:var(--sV)"></i>violent felony</span>
+        <span><i style="background:var(--sN)"></i>nonviolent</span>
+        <span><i style="background:var(--sU)"></i>no charge on file</span>
+        <span>1 chibi = 50 souls &middot; 1 mat = 50 beds</span>
+      </span>
+      <span class="tick" id="tick">Hover a chibi for a <b>real record</b>. Check a box to march that category out the gate.</span>
+    </div>
+  </section>
+
+  <section class="orders">
+    <div class="scroller"><div class="cols" id="cols"></div></div>
+    <div class="hint" id="hint"></div>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="in">
+  <h3>&#10022; Scroll of Methodology &#10022;</h3>
+  <p class="real">Every number here is real. Only the shouting is fictional.</p>
+  <p>Every chibi in the yard stands for 50 real records in the city's
+  <a href="https://data.cityofnewyork.us/Public-Safety/Daily-Inmates-In-Custody/7479-ugqb" target="_blank" rel="noopener">Daily Inmates in Custody</a>
+  file, and the record you see when you hover one is a real person in that category: age, sex, custody
+  classification, custody status, gang flag, mental-health flag, infraction flag, admission date, top charge.
+  Nothing is simulated. Categories come from the top-charge penal law code, so a person charged with six
+  crimes appears under the most serious one only, which makes every category here more sympathetic than the
+  underlying case file, not less. The letter ranks are this page's own invention, assigned by offense
+  severity; New York's statutes grade felonies A-I through E, not D through SSS.</p>
+  <dl class="dl">
+    <dt>&ldquo;Violent felony&rdquo;</dt>
+    <dd>Felonies listed in New York Penal Law &sect;70.02, plus all homicide, robbery, felony sex offenses,
+    arson, kidnapping, and felony domestic-violence assault. Robbery in the third degree and manslaughter in
+    the second degree are counted as violent here although the statute does not list them.</dd>
+    <dt>Mental-health flag</dt>
+    <dd>The file's BRADH field: the person is on the mental-health service caseload. It covers
+    <span id="pctBradh" class="fig">&mdash;</span> of the jail and says nothing about severity.</dd>
+    <dt>No charge on file</dt>
+    <dd><span id="nNoCharge" class="fig">&mdash;</span> people have no top charge in the published file.
+    Counted as nonviolent throughout, which is a generous assumption.</dd>
+    <dt>Court appearance</dt>
+    <dd>15.6% of everyone released, the reduction in failure-to-appear that detention produces for marginal
+    defendants in the Philadelphia estimates cited in the report.</dd>
+    <dt>New offending</dt>
+    <dd>12.2% of everyone released, the reduction in pretrial offending measured for marginal New York City
+    defendants. Both rates are averages for defendants at the margin of a release decision, applied here to
+    everyone you let out.</dd>
+    <dt>Source</dt>
+    <dd>Charles Fain Lehman, <a href="https://manhattan.institute/article/is-3300-enough-why-the-borough-based-jails-are-too-small-to-keep-nyc-safe" target="_blank" rel="noopener">Is 3,300 Enough? Why the Borough-Based Jails Are Too Small to Keep NYC Safe</a>,
+    Manhattan Institute. Population as of <span id="asof2" class="fig"></span>.</dd>
+  </dl>
+  <button class="x" id="bClose">Return to Battle</button>
+</div></div>
+
+<script>
+const DATA = __DATA__;
+const CAP=3300, PER=50, MATS=Math.round(CAP/PER);
+const P=DATA.people, LAB=DATA.labels, BK=DATA.buckets, BI={}; BK.forEach((b,i)=>BI[b]=i);
+const F={lab:0,bk:1,age:2,fem:3,cu:4,st:5,srg:6,br:7,inf:8,los:9};
+const VB=["murder","attmurder","mansl","rob1","rob2","rob3","asl1","asl2","gun","burg_res","sex","child",
+  "dv_viol","arson","kidnap","viol_other"], VIOL=new Set(VB.map(b=>BI[b]));
+const HOM=new Set(["murder","attmurder","mansl"].map(b=>BI[b])), MUR=new Set(["murder","attmurder"].map(b=>BI[b]));
+const SEXB=new Set(["sex","child"].map(b=>BI[b]));
+const CUN=["MIN","MED","MAX"];
+const STN=["detained pretrial","serving a city sentence","parole warrant","state-ready",
+  "awaiting sentence","city sentence, parole hold","parole violator"];
+const fmt=n=>n.toLocaleString("en-US");
+
+/* ---------------- levers ---------------- */
+const XF={
+ cs:p=>p[F.st]===1||p[F.st]===5, par:p=>p[F.st]===2||p[F.st]===6, sr:p=>p[F.st]===3||p[F.st]===4,
+ age:p=>p[F.age]>=60, fem:p=>p[F.fem]===1, min:p=>p[F.cu]===0, noinf:p=>p[F.inf]===0,
+ br:p=>p[F.br]===1, nosrg:p=>p[F.srg]===0, nw:p=>p[F.los]>=0&&p[F.los]<30
+};
+const bcnt=b=>P.reduce((a,p)=>a+(p[F.bk]===BI[b]?1:0),0);
+const lcnt=t=>P.reduce((a,p)=>a+(LAB[p[F.lab]][0]===t?1:0),0);
+const nSRG=P.reduce((a,p)=>a+p[F.srg],0), pctBRADH=Math.round(100*P.reduce((a,p)=>a+p[F.br],0)/P.length);
+const COLS=[
+ {h:"Arc I &middot; The Tutorial",red:false,levs:[
+  {bs:["misd"],r:"D",nm:"Misdemeanors",d:"D-RANK MOBS. Petit larceny, seventh-degree drug possession, trespass, criminal mischief, DWI, resisting arrest, unlicensed driving. Free them and nobody writes an angry column."},
+  {bs:["nocharge"],r:"D",nm:"No charge on file",d:`THE UNNAMED. The city's published file lists no top charge whatsoever for these ${fmt(bcnt('nocharge'))} souls. We count them as nonviolent, which is generous and which nobody can verify.`,w:"Charge unknown. Proceed blind."},
+  {bs:["admin"],r:"D",nm:"Warrant/probation holds",d:"PAPERWORK BOSSES. Out-of-state and federal warrants, probation violations, civil commitments, and cases carrying no penal law code at all."},
+  {bs:["esc","nvfel_other"],r:"D",nm:"Bail jumping &amp; escape",d:"THE RUNNERS. People who already failed to appear or walked away from custody, plus sex-offender registration failures.",w:"Bail jumpers are flight risks BY DEFINITION."},
+  {bs:["misd_viol"],r:"C",nm:"Violent &amp; DV misd.",d:"CAREFUL, CHOSEN ONE. Assault in the third degree, menacing, criminal obstruction of breathing, forcible touching, second-degree contempt.",w:"The word &ldquo;misdemeanor&rdquo; is hiding real violence here."}
+ ]},
+ {h:"Arc II &middot; Filler Episodes",red:false,levs:[
+  {bs:["drug"],r:"B",nm:"Drug felonies",d:"B-RANK. Fifth-degree possession all the way up to first-degree possession and sale, a class A-I felony carrying the same class as murder.",w:`Includes ${fmt(lcnt('Crim. poss. controlled substance 1st'))} souls charged at the very top of the statute.`},
+  {bs:["theft"],r:"B",nm:"Larceny, fraud, property",d:"Grand larceny in all four degrees, possession of stolen property, forgery, identity theft, felony criminal mischief. No violence in the top charge."},
+  {bs:["burg3"],r:"B",nm:"Burglary 3rd (stores)",d:"Breaking into a building where nobody sleeps: stores, warehouses, offices, construction sites."},
+  {bs:["consp"],r:"B",nm:"Conspiracy",d:"PLOT TWIST! Agreeing to commit a crime. First- and second-degree conspiracy means the object crime was a class A felony.",w:"This is how MURDER PLOTS and narcotics rings get charged."},
+  {bs:["contempt"],r:"B",nm:"Criminal contempt",d:"TRAGIC BACKSTORY WARNING. Violating an order of protection with physical contact, threats, or repeated contact. Statutorily nonviolent.",w:"Overwhelmingly domestic violence."}
+ ]},
+ {h:"Final Arc &middot; Forbidden",red:true,levs:[
+  {bs:["gun"],r:"A",nm:"Gun felonies",d:"A-RANK. Second-degree criminal possession of a weapon means a LOADED FIREARM carried outside the home or business. Plus gun sales and trafficking."},
+  {bs:["asl2"],r:"A",nm:"Assault 2nd",d:"A-RANK. Causing serious physical injury, injuring someone with a weapon, or injuring a police officer, firefighter, or EMT."},
+  {bs:["rob2","rob3"],r:"A",nm:"Robbery 2nd &amp; 3rd",d:"A-RANK. Forcible stealing, with an accomplice, or injuring the victim, or taking a car. Third-degree robbery is the one the statute politely declines to call violent."},
+  {bs:["asl1"],r:"S",nm:"Assault 1st &amp; gang",d:"S-RANK. Disfiguring, maiming, or very nearly killing someone, attempts included. &ldquo;Gang assault&rdquo; means a whole group did it together."},
+  {bs:["dv_viol"],r:"S",nm:"Strangulation &amp; contempt",d:"S-RANK. Choking someone to unconsciousness or injury, and order-of-protection violations that drew blood.",w:"Strangulation is the single strongest predictor of domestic homicide. Think hard."},
+  {bs:["rob1"],r:"S",nm:"Robbery 1st (armed)",d:"S-RANK. A deadly weapon, a gun displayed, or serious physical injury caused.",w:"Every single one of these is an ARMED ROBBERY."},
+  {bs:["burg_res"],r:"S",nm:"Burglary 1st/2nd (homes)",d:"S-RANK. Burglary of a dwelling, or while armed, or after injuring someone.",w:"These are people who broke in WHERE OTHERS SLEEP."},
+  {bs:["arson","kidnap","viol_other"],r:"S",nm:"Arson, kidnap &amp; threats",d:"S-RANK. Setting fires, abduction, first-degree unlawful imprisonment, witness intimidation, terroristic threats, hate crimes.",w:"Freeing witness-intimidation defendants sabotages OTHER cases too."},
+  {bs:["sex"],r:"SS",nm:"Sex offenses",d:`SS-RANK. Felony rape, criminal sexual act, and sexual abuse, including ${fmt(lcnt('Rape 1st'))} souls charged with first-degree rape.`},
+  {bs:["mansl"],r:"SS",nm:"Manslaughter",d:"SS-RANK. Killing someone without the intent that murder requires, vehicular manslaughter included."},
+  {bs:["attmurder"],r:"SS",nm:"Attempted murder",d:`SS-RANK. They tried to kill someone AND FAILED. ${fmt(bcnt('attmurder'))} souls, the second-largest faction in the entire facility.`,w:"Every one of them tried to kill somebody."},
+  {bs:["child"],r:"SSS",nm:"Child sex offenses",d:"SSS-RANK. FORBIDDEN. Predatory sexual assault, course of sexual conduct against a child, and child sexual performance offenses.",w:"Child victims."},
+  {bs:["murder"],r:"SSS",nm:"Murder",d:`SSS-RANK. THE FINAL BOSS. First- and second-degree murder and aggravated murder. ${fmt(bcnt('murder'))} souls: the single largest faction in the jail.`,w:"There is no power-up that makes this one safe."}
+ ]},
+ {h:"Secret Techniques",red:true,levs:[
+  {x:"cs",r:"??",nm:"City sentence &lt;1 yr",d:"Commute whatever time remains on their sentence."},
+  {x:"par",r:"??",nm:"Parole warrant holds",d:"Detainees carrying a state parole hold, technical violators included."},
+  {x:"sr",r:"??",nm:"State-ready &amp; transfers",d:"Sentenced souls the city is merely storing until the state comes to collect them."},
+  {x:"age",r:"??",nm:"Age 60 and over",d:"Compassionate release on AGE ALONE, no matter the charge."},
+  {x:"fem",r:"??",nm:"Every woman in custody",d:"Close the women&rsquo;s units ENTIRELY, whatever anyone is charged with."},
+  {x:"min",r:"??",nm:"Minimum security",d:"FORBIDDEN TECHNIQUE. The jail&rsquo;s OWN classification, which grades behavior on the inside and not the crime that brought them in."},
+  {x:"noinf",r:"??",nm:"No jail infraction",d:"They have caused no trouble in custody. Says nothing whatsoever about the charge."},
+  {x:"br",r:"??",nm:"Mental-health caseload",d:`THE GAME-BREAKING EXPLOIT. Divert to treatment. This flag covers ${pctBRADH}% of the jail and says NOTHING about severity.`},
+  {x:"nosrg",r:"??",nm:"No gang affiliation",d:`Keep only the ${fmt(nSRG)} souls flagged as security-risk-group members. Everyone else walks.`},
+  {x:"nw",r:"??",nm:"Admitted &lt;30 days",d:"Send the NEWEST arrivals home and keep the ones who have been here for years. Pure chaos."}
+ ]}
+];
+const ALL=[]; COLS.forEach(c=>c.levs.forEach(l=>{ALL.push(l);
+  l.id=l.bs?("b_"+l.bs.join("-")):("x_"+l.x);
+  l.test=l.bs?(s=>p=>s.has(p[F.bk]))(new Set(l.bs.map(b=>BI[b]))):XF[l.x];
+  l.size=0; l.viol=0; l.hom=0; }));
+for(const p of P) for(const l of ALL) if(l.test(p)){ l.size++;
+  if(VIOL.has(p[F.bk])) l.viol++; if(HOM.has(p[F.bk])) l.hom++; }
+const NVTOT=P.filter(p=>!VIOL.has(p[F.bk])).length, FLOOR=P.length-NVTOT;
+
+/* ---------------- chips ---------------- */
+document.getElementById("cols").innerHTML=COLS.map(c=>{
+  const tot=c.levs.reduce((a,l)=>a+l.size,0);
+  return `<div class="col ${c.red?"red":""}">
+   <div class="ch1"><h2>${c.h}</h2><span class="fig">${c.h==="Secret Techniques"?"overlaps":fmt(tot)}</span></div>
+   ${c.levs.map(l=>`<label class="chip" for="${l.id}" data-lev="${l.id}">
+     <input type="checkbox" id="${l.id}" data-id="${l.id}" autocomplete="off">
+     <span class="rk r${l.r.replace("?","x").replace("?","x")}">${l.r}</span>
+     <span class="cn">${l.nm}</span><span class="cv fig">${fmt(l.size)}</span>
+     <span class="cm fig" id="m_${l.id}"></span></label>`).join("")}
+  </div>`}).join("");
+
+const DEFHINT=`<b>LISTEN CAREFULLY, CHOSEN ONE.</b> Only <b>${fmt(NVTOT)}</b> of the ${fmt(P.length)} souls in `+
+ `this facility are not charged with a violent felony. Free <b>EVERY LAST ONE</b> of them and <b>${fmt(FLOOR)}</b> `+
+ `still remain &mdash; <span class="warn">${fmt(FLOOR-CAP)} more than the four borough jails can hold</span>, `+
+ `before a single new arrest. This is the tragedy you have inherited.`;
+const hintEl=document.getElementById("hint"); hintEl.innerHTML=DEFHINT;
+function setHint(l){
+  if(!l){ hintEl.innerHTML=DEFHINT; return; }
+  const dang = l.x ? ` <span class="warn">&#9888; Sweeps up ${fmt(l.viol)} violent felony charges, `+
+    `${fmt(l.hom)} of them homicides.</span>` : "";
+  hintEl.innerHTML = l.d + (l.w?` <span class="warn">${l.w}</span>`:"") + dang;
+}
+document.querySelectorAll(".chip").forEach(el=>{
+  const l=ALL.find(x=>x.id===el.dataset.lev);
+  el.addEventListener("mouseenter",()=>setHint(l));
+  el.addEventListener("mouseleave",()=>setHint(null));
+  el.querySelector("input").addEventListener("focus",()=>setHint(l));
+  el.querySelector("input").addEventListener("blur",()=>setHint(null));
+});
+const on=new Set();
+document.querySelectorAll(".chip input").forEach(el=>el.addEventListener("change",e=>{
+  e.target.checked?on.add(e.target.dataset.id):on.delete(e.target.dataset.id);
+  setHint(ALL.find(l=>l.id===e.target.dataset.id)); update();
+}));
+
+/* ---------------- sprites ---------------- */
+const SPR_A=["..oooooooo..","..ohhhhhho..","..ohhhhhho..","..osssssso..","..owessweo..","..oeesseeo..",
+  "..orsmmsro..","...oooooo...","..oaaaaaao..",".obbbbbbbbo.",".oaaaaaaaao.",".obbbbbbbbo.",
+  "..oaa..aao..","..off..ffo.."];
+const SPR_B=SPR_A.slice(0,13).concat(["..ffo..off.."]);
+const PALS={
+ light:{out:"#1b2132",foot:"#2a3141",fence:"#8d8471",over:"#af2318",
+  floor:"#cbc3af",mat:"#dfd9c8",matln:"#ab9d84",pillow:"#c6bda6",
+  hair:["#2e2119","#6b4726","#14161c","#8d6b3c"],
+  skin:[{s:"#f2cba3",m:"#c98a72",r:"#ef9d93"},{s:"#d29a6c",m:"#a86a52",r:"#c87a63"},
+        {s:"#8f6242",m:"#6b422c",r:"#a86546"}],
+  eyew:"#ffffff",
+  suit:{V:{a:"#f0c5be",b:"#b5342a"},N:{a:"#c5d7ef",b:"#2d5c9b"},U:{a:"#dad5c6",b:"#6e6a5d"}}},
+ dark:{out:"#0e131d",foot:"#18202e",fence:"#5d6679",over:"#ef7365",
+  floor:"#353c4a",mat:"#454e61",matln:"#586279",pillow:"#515a6d",
+  hair:["#3a2a20","#7d5530","#0f1117","#a07c46"],
+  skin:[{s:"#f0c69e",m:"#c2856b",r:"#ec9a8f"},{s:"#cf9466",m:"#a2654c",r:"#c47a62"},
+        {s:"#8d6040",m:"#68402a",r:"#a46445"}],
+  eyew:"#fdfdff",
+  suit:{V:{a:"#eaa79d",b:"#d4503f"},N:{a:"#a9c5e8",b:"#4b82c9"},U:{a:"#c3bdab",b:"#8a8578"}}}
+};
+let PC=PALS.light, cache={};
+const isDark=()=>{const t=document.documentElement.getAttribute("data-theme");
+  return t==="dark"?true:t==="light"?false:matchMedia("(prefers-color-scheme: dark)").matches};
+function buildCache(){
+  PC=PALS[isDark()?"dark":"light"]; cache={};
+  for(const sc of ["V","N","U"]) for(let h=0;h<4;h++) for(let k=0;k<3;k++) for(let fr=0;fr<2;fr++){
+    const c=document.createElement("canvas"); c.width=12; c.height=14;
+    const g=c.getContext("2d");
+    const map={o:PC.out,e:PC.out,f:PC.foot,h:PC.hair[h],s:PC.skin[k].s,m:PC.skin[k].m,
+               r:PC.skin[k].r,w:PC.eyew,a:PC.suit[sc].a,b:PC.suit[sc].b};
+    (fr?SPR_B:SPR_A).forEach((row,y)=>{for(let x=0;x<12;x++){const t=row[x];
+      if(t==="."||!map[t])continue; g.fillStyle=map[t]; g.fillRect(x,y,1,1);}});
+    cache[sc+h+k+fr]=c;
+  }
+}
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cv=document.getElementById("cv"), tipEl=document.getElementById("tip");
+let ctx=cv.getContext("2d"), cw=0, chh=0, pen={x:0,y:0,w:0,h:0}, S=3, SW=36, SH=42, mats=[], gate={}, prev=null;
+const sprites=[]; const byB={};
+// one sprite per PER people in each bucket, each carrying a real record from that bucket
+(function seed(){
+  let rnd=20260929;
+  const rand=()=>((rnd=(rnd*1103515245+12345)&0x7fffffff)/0x7fffffff);
+  BK.forEach((b,bi)=>{
+    const mem=P.filter(p=>p[F.bk]===bi); if(!mem.length)return;
+    const n=Math.max(1,Math.round(mem.length/PER));
+    const cat=VIOL.has(bi)?"V":(b==="nocharge"?"U":"N");
+    byB[bi]={list:[],mem:mem,n:n};
+    for(let i=0;i<n;i++){
+      const s={bk:bi,cat:cat,rep:mem[Math.floor(i*mem.length/n)],
+        h:Math.floor(rand()*4),k:Math.floor(rand()*3),
+        x:0,y:0,tx:0,ty:0,fx:rand(),fy:rand(),face:rand()<.5?-1:1,
+        st:"in",route:null,ph:rand()*6,pause:rand()*2.4,mv:false};
+      sprites.push(s); byB[bi].list.push(s);
+    }});
+})();
+let rs=987654321; const rnd=()=>((rs=(rs*1103515245+12345)&0x7fffffff)/0x7fffffff);
+
+function layout(){
+  const r=cv.parentElement.getBoundingClientRect();
+  cw=Math.max(240,r.width); chh=Math.max(140,r.height);
+  const dpr=Math.min(2.5,window.devicePixelRatio||1);
+  cv.width=Math.round(cw*dpr); cv.height=Math.round(chh*dpr);
+  ctx=cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.imageSmoothingEnabled=false;
+  pen={x:5,y:5,w:cw-10,h:chh-10};
+  S=Math.max(2,Math.min(4,Math.round(Math.sqrt(.40*pen.w*pen.h/(sprites.length*168)))));
+  SW=12*S; SH=14*S;
+  const cols=Math.max(4,Math.round(Math.sqrt(MATS*pen.w/pen.h))), rows=Math.ceil(MATS/cols);
+  const mw=pen.w/cols, mh=pen.h/rows; mats=[];
+  for(let i=0;i<MATS;i++){const c=i%cols, rw=Math.floor(i/cols);
+    mats.push({x:pen.x+c*mw+mw*.13,y:pen.y+rw*mh+mh*.18,w:mw*.74,h:mh*.64});}
+  gate={x:pen.x+pen.w,y:pen.y+pen.h*.5-SH/2,h:Math.max(SH+8,Math.min(78,pen.h*.3))};
+  // Carry every sprite across the resize, in motion or not. Repositioning only the idle ones
+  // leaves the walkers stranded wherever the previous, differently-sized pen put them.
+  if(prev){
+    const rx=Math.max(1,pen.w-SW)/Math.max(1,prev.w-prev.sw), ry=Math.max(1,pen.h-SH)/Math.max(1,prev.h-prev.sh);
+    const mapx=v=>pen.x+(v-prev.x)*rx, mapy=v=>pen.y+(v-prev.y)*ry;
+    for(const s of sprites){
+      s.x=mapx(s.x); s.y=mapy(s.y); s.tx=mapx(s.tx); s.ty=mapy(s.ty);
+      if(s.st==="in"){ s.x=Math.min(Math.max(s.x,pen.x),inx(1)); s.y=Math.min(Math.max(s.y,pen.y),iny(1)); }
+      else if(s.st==="leaving") s.route=[{x:inx(1)-6,y:gate.y},{x:pen.x+pen.w+SW+30,y:gate.y}];
+      else if(s.st==="entering") s.route=[{x:inx(1)-6,y:gate.y},{x:inx(s.fx),y:iny(s.fy)}];
+    }
+  } else for(const s of sprites){ s.x=inx(s.fx); s.y=iny(s.fy); s.tx=s.x; s.ty=s.y; }
+  prev={x:pen.x,y:pen.y,w:pen.w,h:pen.h,sw:SW,sh:SH};
+}
+const inx=f=>pen.x+f*Math.max(1,pen.w-SW), iny=f=>pen.y+f*Math.max(1,pen.h-SH);
+function newTarget(s){ s.fx=rnd(); s.fy=rnd(); s.tx=inx(s.fx); s.ty=iny(s.fy); }
+
+function tick(dt){
+  for(const s of sprites){
+    if(s.st==="out") continue;
+    let tx=s.tx, ty=s.ty, sp=16;
+    if(s.st==="in"){
+      if(s.pause>0){ s.pause-=dt; s.mv=false; if(s.pause<=0) newTarget(s); continue; }
+    } else { const p=s.route[0]; tx=p.x; ty=p.y; sp=92; }
+    let dx=tx-s.x, dy=ty-s.y, d=Math.hypot(dx,dy);
+    if(d<1.4){
+      if(s.st==="in"){ s.mv=false; s.pause=.5+rnd()*2.6; }
+      else { s.route.shift();
+        if(!s.route.length){ if(s.st==="leaving"){s.st="out";} else {s.st="in";s.mv=false;s.pause=rnd()*1.5;} } }
+      continue;
+    }
+    const step=Math.min(d,(RM?1e5:sp)*dt);
+    s.x+=dx/d*step; s.y+=dy/d*step; s.mv=true;
+    if(Math.abs(dx)>1) s.face=dx<0?-1:1;
+    s.ph+=dt*(s.st==="in"?5.6:9);
+  }
+}
+function drawRR(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
+  g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+let overNow=false, shown=[];
+function draw(){
+  const g=ctx; g.clearRect(0,0,cw,chh);
+  drawRR(g,pen.x,pen.y,pen.w,pen.h,4); g.fillStyle=PC.floor; g.fill();
+  g.strokeStyle=PC.matln; g.lineWidth=1;
+  for(const m of mats){
+    g.fillStyle=PC.mat; g.fillRect(m.x,m.y,m.w,m.h);
+    g.fillStyle=PC.pillow; g.fillRect(m.x+m.w*.12,m.y+m.h*.1,m.w*.76,Math.max(2,m.h*.22));
+    g.strokeRect(m.x+.5,m.y+.5,m.w-1,m.h-1);
+  }
+  // fence, broken by the gate on the right
+  g.strokeStyle=overNow?PC.over:PC.fence; g.lineWidth=2.5; g.beginPath();
+  g.moveTo(pen.x+1,pen.y+1); g.lineTo(pen.x+pen.w-1,pen.y+1); g.lineTo(pen.x+pen.w-1,gate.y);
+  g.moveTo(pen.x+pen.w-1,gate.y+gate.h); g.lineTo(pen.x+pen.w-1,pen.y+pen.h-1);
+  g.lineTo(pen.x+1,pen.y+pen.h-1); g.lineTo(pen.x+1,pen.y+1); g.stroke();
+  g.fillStyle=PC.fence; g.font='700 9px system-ui,sans-serif'; g.textAlign="right";
+  g.fillText("GATE", pen.x+pen.w-6, gate.y-4);
+  shown=sprites.filter(s=>s.st!=="out").sort((a,b)=>a.y-b.y);
+  for(const s of shown){
+    const fr=(!RM&&s.mv)?(Math.floor(s.ph)%2):0;
+    const img=cache[s.cat+s.h+s.k+fr]; if(!img)continue;
+    const x=Math.round(s.x), y=Math.round(s.y)-(fr?S:0);
+    if(s.face<0){ g.save(); g.translate(x+SW,y); g.scale(-1,1); g.drawImage(img,0,0,12,14,0,0,SW,SH); g.restore(); }
+    else g.drawImage(img,0,0,12,14,x,y,SW,SH);
+  }
+}
+let last=0;
+function loop(t){ const dt=Math.min(.05,(t-last)/1000||0); last=t; tick(dt); draw(); requestAnimationFrame(loop); }
+
+/* ---------------- state ---------------- */
+function released(){
+  const ls=ALL.filter(l=>on.has(l.id)); if(!ls.length) return [];
+  return P.filter(p=>{for(const l of ls) if(l.test(p)) return true; return false});
+}
+const TICK_DEF=`Hover a chibi for a <b>real record</b>. Check a box to march that category out the gate.`;
+let tickList=[], tickI=0, curPop=P.length, curOver=P.length-CAP;
+function update(){
+  const rel=released(), relSet=new Set(rel), n=rel.length, pop=P.length-n, over=pop-CAP;
+  overNow=over>0; curPop=pop; curOver=over;
+  let viol=0,mur=0,sexo=0,gun=0,srg=0;
+  for(const p of rel){const b=p[F.bk];
+    if(VIOL.has(b))viol++; if(MUR.has(b))mur++; if(SEXB.has(b))sexo++;
+    if(b===BI.gun)gun++; if(p[F.srg])srg++;}
+
+  document.getElementById("popn").textContent=fmt(pop);
+  const bd=document.getElementById("badge");
+  bd.classList.toggle("good",over<=0);
+  bd.textContent = over>0 ? "IMPOSSIBLE!! +"+fmt(over)
+    : (over===0?"PERFECTLY BALANCED" : fmt(-over)+" BEDS TO SPARE!!");
+  const sc=P.length;
+  document.getElementById("fill").style.width=(Math.min(pop,CAP)/sc*100)+"%";
+  const ov=document.getElementById("overf");
+  ov.style.left=(CAP/sc*100)+"%"; ov.style.width=(Math.max(0,pop-CAP)/sc*100)+"%";
+
+  document.getElementById("scores").innerHTML=[
+    ["souls freed",n,false],["violent felons",viol,viol>0],
+    ["murder / attempt",mur,mur>0],["sex offenses",sexo,sexo>0],
+    ["gun felons",gun,gun>0],["gang affiliates",srg,srg>0],
+    ["fated to skip court",Math.round(n*.156),n>0],["fated rearrests",Math.round(n*.122),n>0]
+  ].map(([k,v,hot])=>`<div class="sc ${hot?"hot":""}"><span class="v fig">${fmt(v)}</span><span class="k">${k}</span></div>`).join("");
+
+  // marginal effect of every lever not yet pulled
+  for(const l of ALL){
+    const el=document.getElementById("m_"+l.id); if(!el)continue;
+    if(on.has(l.id)){el.textContent="";continue}
+    let m=0; for(const p of P) if(!relSet.has(p)&&l.test(p)) m++;
+    el.textContent = (m===l.size||m===0)?"":"+"+fmt(m);
+  }
+
+  // how many figures each bucket still needs, and who walks out
+  const outByB={};
+  for(const p of rel){ const b=p[F.bk]; (outByB[b]=outByB[b]||[]).push(p); }
+  BK.forEach((b,bi)=>{
+    const g=byB[bi]; if(!g)return;
+    const outs=outByB[bi]||[];
+    const left=g.mem.length-outs.length;
+    const want=left===0?0:Math.max(1,Math.round(g.n*left/g.mem.length));
+    g.list.forEach((s,i)=>{
+      const keep=i<want;
+      if(keep&&(s.st==="leaving"||s.st==="out")){
+        s.st="entering"; s.x=pen.x+pen.w+SW+14; s.y=gate.y;
+        s.route=[{x:pen.x+pen.w-SW-6,y:gate.y},{x:inx(s.fx=rnd()),y:iny(s.fy=rnd())}];
+        s.rep=g.mem[Math.floor(rnd()*g.mem.length)];
+      } else if(!keep&&(s.st==="in"||s.st==="entering")){
+        s.st="leaving"; s.route=[{x:pen.x+pen.w-SW-6,y:gate.y},{x:pen.x+pen.w+SW+30,y:gate.y}];
+        if(outs.length) s.rep=outs[Math.floor(rnd()*outs.length)];
+      }
+    });
+  });
+
+  // ticker: the most serious people actually walking out, then a spread of the rest
+  const bySev=[...rel].sort((a,b)=>SEVR[a[F.bk]]-SEVR[b[F.bk]]);
+  tickList=bySev.slice(0,6);
+  for(let i=1;i<=8;i++){const j=Math.floor(bySev.length*i/9); if(bySev[j])tickList.push(bySev[j]);}
+  tickI=0;
+  const te=document.getElementById("tick");
+  if(!n) te.innerHTML=TICK_DEF;
+  else if(over<=0) te.innerHTML=viol
+    ? `<em>NANI?! YOU ACTUALLY DID IT</em> &mdash; and ${fmt(viol)} of the souls you freed are charged with `+
+      `violent felonies`+(mur?`, ${fmt(mur)} of them with murder or attempted murder`:"")+
+      `. This is the bargain the 3,300-bed prophecy demands.`
+    : `<em>NANI?!</em> You slipped under the sacred limit without freeing a single violent felon.`;
+  else showTick();
+}
+const SEV=["murder","attmurder","mansl","child","sex","rob1","asl1","burg_res","kidnap","arson","rob2","gun",
+  "dv_viol","asl2","rob3","viol_other","contempt","burg3","consp","theft","drug","misd_viol","esc",
+  "nvfel_other","admin","misd","nocharge"].map(b=>BI[b]);
+const SEVR={}; SEV.forEach((b,i)=>SEVR[b]=i);
+function rec(p,pre){
+  const [lab,cls]=LAB[p[F.lab]];
+  const los=p[F.los]<0?"":(p[F.los]>=730?Math.floor(p[F.los]/365)+" yrs held":
+    p[F.los]>=60?Math.round(p[F.los]/30)+" mo held":p[F.los]+"d held");
+  const fl=[]; if(p[F.srg])fl.push("gang"); if(p[F.inf])fl.push("infractions");
+  return `${pre}<b>${lab}</b> &middot; ${p[F.age]>0?p[F.age]:"?"} &middot; ${p[F.fem]?"F":"M"} &middot; `+
+    `${CUN[p[F.cu]]} &middot; ${STN[p[F.st]]}${los?" &middot; "+los:""}${fl.length?" &middot; <em>"+fl.join(", ")+"</em>":""}`;
+}
+function showTick(){
+  const te=document.getElementById("tick");
+  if(!tickList.length)return;
+  te.innerHTML=rec(tickList[tickI%tickList.length],"<em>&#9654; OUT THE GATE:</em> ");
+  tickI++;
+}
+setInterval(()=>{ if(tickList.length&&curOver>0) showTick(); },2800);
+
+/* ---------------- hover ---------------- */
+function hit(mx,my){ for(let i=shown.length-1;i>=0;i--){const s=shown[i];
+  if(mx>=s.x&&mx<=s.x+SW&&my>=s.y&&my<=s.y+SH) return s} return null }
+cv.addEventListener("mousemove",e=>{
+  const r=cv.getBoundingClientRect(), s=hit(e.clientX-r.left,e.clientY-r.top);
+  if(!s){tipEl.hidden=true;cv.style.cursor="default";return}
+  cv.style.cursor="pointer";
+  const [lab,cls]=LAB[s.rep[F.lab]], p=s.rep;
+  const los=p[F.los]<0?"admission date unknown":(p[F.los]>=730?Math.floor(p[F.los]/365)+" years in custody":
+    p[F.los]>=60?Math.round(p[F.los]/30)+" months in custody":p[F.los]+" days in custody");
+  const fl=[]; if(p[F.srg])fl.push("gang-affiliated"); if(p[F.inf])fl.push("jail infractions");
+  if(p[F.br])fl.push("mental-health caseload");
+  tipEl.innerHTML=`<span class="ch">${lab}${cls&&cls.length<5?` &middot; class ${cls}`:""}</span>`+
+    `<span class="dt">${p[F.age]>0?p[F.age]:"age n/a"} &middot; ${p[F.fem]?"female":"male"} &middot; `+
+    `${CUN[p[F.cu]]} custody &middot; ${STN[p[F.st]]}<br>${los}`+
+    (fl.length?`<br><em>${fl.join(" &middot; ")}</em>`:"")+
+    `<br>1 of ${fmt(byB[s.bk].mem.length)} in this category</span>`;
+  tipEl.hidden=false;
+  const tw=tipEl.offsetWidth, th=tipEl.offsetHeight;
+  tipEl.style.left=Math.max(2,Math.min(cw-tw-2,s.x+SW/2-tw/2))+"px";
+  tipEl.style.top=(s.y-th-6<4?s.y+SH+6:s.y-th-6)+"px";
+});
+cv.addEventListener("mouseleave",()=>{tipEl.hidden=true});
+cv.addEventListener("click",e=>{const r=cv.getBoundingClientRect();
+  const s=hit(e.clientX-r.left,e.clientY-r.top); if(!s)tipEl.hidden=true;
+  else cv.dispatchEvent(new MouseEvent("mousemove",{clientX:e.clientX,clientY:e.clientY}))});
+
+/* ---------------- controls ---------------- */
+document.getElementById("bNV").addEventListener("click",()=>{
+  on.clear(); ALL.forEach(l=>{ if(l.bs&&!l.bs.some(b=>VIOL.has(BI[b]))) on.add(l.id) });
+  document.querySelectorAll(".chip input").forEach(i=>i.checked=on.has(i.dataset.id)); update();
+});
+document.getElementById("bReset").addEventListener("click",()=>{
+  on.clear(); document.querySelectorAll(".chip input").forEach(i=>i.checked=false); update();
+});
+const sheet=document.getElementById("sheet");
+document.getElementById("bMethod").addEventListener("click",()=>{sheet.hidden=false});
+document.getElementById("bClose").addEventListener("click",()=>{sheet.hidden=true});
+sheet.addEventListener("click",e=>{if(e.target===sheet)sheet.hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")sheet.hidden=true});
+document.getElementById("asof2").textContent=DATA.asof;
+document.getElementById("popMax").textContent=fmt(P.length);
+document.getElementById("capmark").style.left=(CAP/P.length*100)+"%";
+document.getElementById("nNoCharge").textContent=fmt(bcnt("nocharge"));
+document.getElementById("pctBradh").textContent=pctBRADH+"%";
+
+on.clear();
+document.querySelectorAll(".chip input").forEach(i=>{i.checked=false});
+buildCache(); layout(); update(); requestAnimationFrame(loop);
+new ResizeObserver(()=>layout()).observe(cv.parentElement);
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layout);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",buildCache);
+new MutationObserver(buildCache).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+</script>
