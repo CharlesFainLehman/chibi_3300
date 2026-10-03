@@ -24,3 +24,4 @@ Overpass endpoints reachable: https://overpass-api.de/api/interpreter FALSE; htt
   MA: 2431 nodes in bbox (https://maps.mail.ru/osm/tools/overpass/api/interpreter)
   VA: 5083 nodes in bbox (https://maps.mail.ru/osm/tools/overpass/api/interpreter)
   DC: 344 nodes in bbox (https://maps.mail.ru/osm/tools/overpass/api/interpreter)
+  IA: 1316 nodes in bbox (https://maps.mail.ru/osm/tools/overpass/api/interpreter)
