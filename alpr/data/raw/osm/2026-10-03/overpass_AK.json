@@ -1,0 +1,332 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-03T13:10:18Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 14158086453,
+  "lat": 58.2984104,
+  "lon": -134.4038708,
+  "timestamp": "2026-09-29T16:09:13Z",
+  "version": 2,
+  "changeset": 189736383,
+  "user": "Rocky ak",
+  "uid": 24607033,
+  "tags": {
+    "camera:type": "fixed",
+    "direction": "55",
+    "man_made": "surveillance",
+    "manufacturer": "Genetec",
+    "manufacturer:wikidata": "Q30295174",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "parking"
+  }
+},
+{
+  "type": "node",
+  "id": 14158086454,
+  "lat": 58.2983869,
+  "lon": -134.4038440,
+  "timestamp": "2026-09-29T16:08:52Z",
+  "version": 2,
+  "changeset": 189736362,
+  "user": "Rocky ak",
+  "uid": 24607033,
+  "tags": {
+    "camera:type": "fixed",
+    "direction": "230",
+    "man_made": "surveillance",
+    "manufacturer": "Genetec",
+    "manufacturer:wikidata": "Q30295174",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "parking"
+  }
+},
+{
+  "type": "node",
+  "id": 14158088298,
+  "lat": 58.3006250,
+  "lon": -134.4090764,
+  "timestamp": "2026-09-29T16:10:18Z",
+  "version": 2,
+  "changeset": 189736456,
+  "user": "Rocky ak",
+  "uid": 24607033,
+  "tags": {
+    "camera:type": "fixed",
+    "direction": "50",
+    "man_made": "surveillance",
+    "manufacturer": "Genetec",
+    "manufacturer:wikidata": "Q30295174",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "parking"
+  }
+},
+{
+  "type": "node",
+  "id": 14158863486,
+  "lat": 58.3000910,
+  "lon": -134.4084470,
+  "timestamp": "2026-09-29T16:09:38Z",
+  "version": 2,
+  "changeset": 189736414,
+  "user": "Rocky ak",
+  "uid": 24607033,
+  "tags": {
+    "camera:type": "fixed",
+    "direction": "160",
+    "man_made": "surveillance",
+    "manufacturer": "Genetec",
+    "manufacturer:wikidata": "Q30295174",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "parking"
+  }
+},
+{
+  "type": "node",
+  "id": 14158863487,
+  "lat": 58.3003071,
+  "lon": -134.4089513,
+  "timestamp": "2026-09-29T16:09:57Z",
+  "version": 2,
+  "changeset": 189736437,
+  "user": "Rocky ak",
+  "uid": 24607033,
+  "tags": {
+    "camera:type": "fixed",
+    "direction": "215",
+    "man_made": "surveillance",
+    "manufacturer": "Genetec",
+    "manufacturer:wikidata": "Q30295174",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "parking"
+  }
+},
+{
+  "type": "node",
+  "id": 14229585101,
+  "lat": 61.1824656,
+  "lon": -149.8760793,
+  "timestamp": "2026-09-29T01:04:37Z",
+  "version": 2,
+  "changeset": 189703844,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "139;61;225",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14229589601,
+  "lat": 61.1815021,
+  "lon": -149.8763263,
+  "timestamp": "2026-09-29T01:08:54Z",
+  "version": 1,
+  "changeset": 189703937,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "83;273",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14229592401,
+  "lat": 61.1810964,
+  "lon": -149.8801267,
+  "timestamp": "2026-09-29T01:12:01Z",
+  "version": 1,
+  "changeset": 189704000,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "14;213",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14229595501,
+  "lat": 61.1822993,
+  "lon": -149.8799603,
+  "timestamp": "2026-09-29T01:16:44Z",
+  "version": 1,
+  "changeset": 189704110,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "339;186",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14237672701,
+  "lat": 61.2307929,
+  "lon": -149.7458625,
+  "timestamp": "2026-10-01T04:29:13Z",
+  "version": 1,
+  "changeset": 189802259,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "21;148",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14237677103,
+  "lat": 61.2291158,
+  "lon": -149.7440672,
+  "timestamp": "2026-10-01T04:35:00Z",
+  "version": 1,
+  "changeset": 189802394,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "54",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14237677301,
+  "lat": 61.2296830,
+  "lon": -149.7440461,
+  "timestamp": "2026-10-01T04:34:12Z",
+  "version": 1,
+  "changeset": 189802325,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "50",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+},
+{
+  "type": "node",
+  "id": 14237677801,
+  "lat": 61.2292108,
+  "lon": -149.7455158,
+  "timestamp": "2026-10-01T04:35:48Z",
+  "version": 1,
+  "changeset": 189802414,
+  "user": "FloxStopr",
+  "uid": 24190015,
+  "tags": {
+    "camera:mount": "pole",
+    "camera:type": "fixed",
+    "direction": "308",
+    "man_made": "surveillance",
+    "manufacturer": "Flock Safety",
+    "manufacturer:wikidata": "Q108485435",
+    "operator": "Lowe's",
+    "operator:type": "private",
+    "operator:wikidata": "Q1373493",
+    "surveillance": "public",
+    "surveillance:type": "ALPR",
+    "surveillance:zone": "traffic"
+  }
+}
+
+  ]
+}
+
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-03T13:10:18Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+
+
+  ]
+}
+

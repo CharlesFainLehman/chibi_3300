@@ -1,0 +1,8 @@
+# Re-downloadable by the scripts; too large for git
+data/raw/census/
+data/raw/fbi/
+data/raw/private_eyes/repo/
+data/raw/leaic/*
+!data/raw/leaic/.gitkeep
+data/processed/
+data/raw/osm/*/*.rds
